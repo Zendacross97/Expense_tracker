@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Report</title>
+</head>
+<body>
+    <header>
+        <h1>Daily Expense Tracker</h1>
+        <h3>Your Expense Report: </h3>
+        <p class="report-message"></p>  
+    </header>
+
+    <label for="yearSelector">Select Year:</label>
+    <select id="yearSelector"></select>
+        
+    <table class="monthly-expense-report">
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Total Expense</th>
+            </tr>
+        </thead>
+        <tbody class="monthly-report"></tbody>
+    </table><br><br>
+    <p class="monthly-report-message"></p>
+
+    <label for="monthSelector">Select Month:</label>
+    <select name="monthSelector" id="monthSelector">
+        <option value="1">January</option>
+        <option value="2">February</option>
+        <option value="3">March</option>
+        <option value="4">April</option>
+        <option value="5">May</option>
+        <option value="6">June</option>
+        <option value="7">July</option>
+        <option value="8">August</option>
+        <option value="9">September</option>
+        <option value="10">October</option>
+        <option value="11">November</option>
+        <option value="12">December</option>
+    </select>
+
+    <table class="daily-expense-report">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Expense</th>
+            </tr>
+        </thead>
+        <tbody class="daily-report"></tbody>
+    </table>
+    <p class="daily-report-message"></p>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.8.4/axios.min.js"></script>
+    <script src="../public/js/expenseReportPublic.js"></script>
+</body>
+</html>
