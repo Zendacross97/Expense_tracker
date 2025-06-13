@@ -10,8 +10,8 @@
         <h1>Daily Expense Tracker</h1>
         <h3>Sign Up to create an account</h3>
     </header>
-    <label of="signUp">SignUp Info:</label><br><br>
-    <form id="signUp" onsubmit="signUp(event)">
+    <label for="signUp">SignUp Info:</label><br><br>
+    <form id="signUp" method="post" action="#" onsubmit="signUp(event)">
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" placeholder="Your name" required><br>
         <label for="email">Email:</label>
@@ -21,8 +21,9 @@
         <button type="submit">Sign up</button>
     </form>
     <p class="signup-message"></p>
-    <p>Already have an account ? <a href="login.html">Login</a></p>
+    <p>Already have an account ? <a href="/user/login">Login</a></p>
+    <p>Forgot your password? <a href="/user/forgotpassword">Reset Password</a></p>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.8.4/axios.min.js"></script>
-    <script src="../public/js/loginPublic.js"></script>
+     <script src="/js/loginPublic.js"></script>
 </body>
 </html>

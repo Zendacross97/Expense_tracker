@@ -117,7 +117,7 @@ exports.countExpensesByUserId = async (userId) => {
     }
 }
 
-exports.deleteExpenseByIdAndUserIdWithTransaction = async (expenseId, userId) => {
+exports.deleteExpenseByIdAndUserIdWithTransaction = async (expenseId, userId, transaction) => {
     try {
         return await Expense.destroy({
             where: { 
@@ -146,6 +146,8 @@ exports.getDownloadedFilesByUserIdwithTransaction = async (userId, transaction) 
     try {
         return await DownloadedFiles.findAll({
             where: { UserId: userId },
+            order: [['Date', 'DESC']], // Order by Date descending
+            limit: 5, // Only get the last 5
             transaction
         });
     } catch (error) {

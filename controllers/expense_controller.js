@@ -2,6 +2,11 @@ const ExpenseServices = require('../services/expenseServices');
 const UserServices = require('../services/userServices');
 const AwsServices = require('../services/awsServices');
 const sequelize = require('../util/db-connection');
+const path = require('path');
+
+exports.getExpensePage = (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/expense_view.html'));
+};
 
 exports.getPaymentStatus = async (req, res) => {
     try {
@@ -18,7 +23,6 @@ exports.getPaymentStatus = async (req, res) => {
 exports.addExpense = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
-        console.log('id:', req.user);
         const { amount, description, category, note } = req.body; //fetch data from request body
         if (!amount || !description || !category ) { //check if all fields are present
             await transaction.rollback();
@@ -104,10 +108,10 @@ exports.getExpense = async (req, res) => {
     }
 };
 
-exports.deleteExpense = async (req, res) => {
+exports.deleteExpense = async (req, res) => { 
     const transaction = await sequelize.transaction();
-    const { expenseId } = req.params; 
     try {
+        const { expenseId } = req.params;
         if (expenseId == 'undefined') {
             await transaction.rollback();
             return res.status(400).json({ error: 'Id is missing' });

@@ -16,13 +16,15 @@ const path = require('path');
 
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 
-console.log(process.env.NODE_ENV);
 const app = express();
 
 app.use(cors());
 app.use(morgan('combined', {stream: accessLogStream}));
 app.use(express.json());
 app.use(express.static('public'));
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'signUp.html'));
+});
 app.use('/user', userRoute);
 app.use('/expense', expenseRoute);
 app.use('/payment', paymentRoute);

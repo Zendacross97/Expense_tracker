@@ -27,6 +27,7 @@ exports.getUserNameAndTotalExpense = async () => {
         return await User.findAll({
             attributes: ['name', 'totalExpense'],
             order: [['totalExpense', 'DESC']],
+            limit: 5 // Fetch top 5 users by total expense
         });
     } catch (error) {
         console.error('Error fetching user name and total expense:', error);

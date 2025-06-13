@@ -1,4 +1,9 @@
 const ExpenseServices = require('../services/expenseServices');
+const path = require('path');
+
+exports.getExpenseReportPage = (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/expenseReport.html'));
+}
 
 exports.getMonthlyExpense = async (req, res) => {
     try {

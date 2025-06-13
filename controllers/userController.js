@@ -34,6 +34,10 @@ function token(id) {
     return jwt.sign({ UserId: id }, 'secret_key')
 }
 
+const getLoginPage = (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/login.html'));
+};
+
 const logInUser = async (req, res) => {  
     try {
         const { email, password } = req.body;
@@ -60,6 +64,10 @@ const logInUser = async (req, res) => {
     } catch (error) {
         res.status(500).json({error: error.message});
     }
+};
+
+const getForgotPasswordPage = (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/forgot.html'));
 };
 
 const forgotUser = async (req, res) => {
@@ -129,7 +137,9 @@ const updatePassword = async (req, res) => {
 
 module.exports = {
     signUpUser,
+    getLoginPage,
     logInUser,
+    getForgotPasswordPage,
     forgotUser,
     resetPassword,
     updatePassword

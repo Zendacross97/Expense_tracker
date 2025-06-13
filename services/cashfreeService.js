@@ -21,7 +21,7 @@ exports.createOrder = async (
                 customer_phone: customerPhone
             },
             order_meta: {
-                return_url: `http://localhost:3000/payment/payment-status/${orderId}`,
+                return_url: `${process.env.BASE_URL}/payment/payment-status/${orderId}`,
                 payment_methods: "cc,dc,upi,nb"
             },
             order_expiry_time: formattedExpiryDate

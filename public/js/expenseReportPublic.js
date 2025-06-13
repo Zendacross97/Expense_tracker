@@ -25,8 +25,6 @@ function getExpenseReport() {
     const monthSelector = document.getElementById('monthSelector');
     const selectedYear = yearSelector.value;
     const selectedMonth = monthSelector.value;
-    // const p = document.querySelector('.monthly-report-message');
-    // p.innerHTML = ''; // Clear previous messages
     const monthlyReport = document.querySelector('.monthly-report');
     monthlyReport.innerHTML = ''; // Clear previous data
     const dailyReport = document.querySelector('.daily-report');
@@ -36,7 +34,7 @@ function getExpenseReport() {
 }
 
 function getMonthlyExpenseReportByYear(selectedYear) {
-    axios.get(`http://localhost:3000/expense/monthlyReport/${selectedYear}`, { headers: { 'Authorization': token } })
+    axios.get(`/expense/monthlyReport/${selectedYear}`, { headers: { 'Authorization': token } })
         .then((res) => {
             populateMonthlyExpenseReport(res.data);
         })
@@ -48,7 +46,7 @@ function getMonthlyExpenseReportByYear(selectedYear) {
 }
 
 function getDailyExpenseReportByMonth(selectedYear, selectedMonth) {
-    axios.get(`http://localhost:3000/expense/dailyReport/${selectedYear}/${selectedMonth}`, { headers: { 'Authorization': token } })
+    axios.get(`/expense/dailyReport/${selectedYear}/${selectedMonth}`, { headers: { 'Authorization': token } })
         .then((res) => {
             populateDailyExpenseReport(res.data);
         })

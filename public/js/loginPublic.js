@@ -4,10 +4,12 @@ function signUp(event) {
     const email = event.target.email.value;
     const password = event.target.password.value;
     const signUpDetails = { name, email, password };
-    axios.post('http://localhost:3000/user/signup', signUpDetails)
+    axios.post('/user/signup', signUpDetails)
     .then((res) => {
+        const p = document.querySelector('.signup-message');
+        p.innerHTML = '';
         alert(res.data.message);
-        window.location.href = '../views/login.html';
+        window.location.href = '/user/login';
     })
     .catch((err) => {
         const p = document.querySelector('.signup-message');
@@ -25,11 +27,11 @@ function logIn(event) {
     const email = event.target.email.value;
     const password = event.target.password.value;
     const loginDetails = { email, password };
-    axios.post('http://localhost:3000/user/login', loginDetails)
+    axios.post('/user/login', loginDetails)
     .then((res) => {
         alert(res.data.message);
         localStorage.setItem('token', res.data.token);
-        window.location.href = '../views/expense_view.html';
+        window.location.href = '/expense';
     })
     .catch((err) => {
         const p = document.querySelector('.login-message');
@@ -45,7 +47,7 @@ function forgotPassword(event) {
     event.preventDefault();
     const email = event.target.email.value;
     const p = document.querySelector('.forgot-message');
-    axios.get(`http://localhost:3000/password/forgotpassword/${ email }`)
+    axios.get(`/password/forgotpassword/${ email }`)
     .then((res) => {
         p.innerHTML = res.data.message;
         p.style.color = 'green';
@@ -64,12 +66,10 @@ function resetPassword(event) {
     const passwordDetails = { password, confirmPassword };
     const uuid = window.location.href.split('/').pop();
     const p = document.querySelector('.reset-message');
-    axios.post(`http://localhost:3000/password/updatepassword/${ uuid }`, passwordDetails)
+    axios.post(`/password/updatepassword/${ uuid }`, passwordDetails)
     .then((res) => {
-        p.innerHTML = res.data.message;
-        p.style.color = 'green';
-        event.target.password.value = '';
-        event.target.confirmPassword.value = '';
+        alert(res.data.message);
+        window.location.href = '/user/login';
     })
     .catch((err) => {
         p.innerHTML = (err.response && err.response.data && err.response.data.error) ? err.response.data.error : 'An error occurred';

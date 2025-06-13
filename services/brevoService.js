@@ -22,6 +22,6 @@ exports.sendResetPasswordEmail = async (email, uuid) => {
         },
         htmlContent: `<h1> Daily Expense Tracker <h1>
                     <h3> Your password reset link <h3>
-                    <p> Click here: <a href="http://localhost:3000/password/resetpassword/${uuid}">Reset</a><p>`
+                    <p> Click here: <a href="${process.env.BASE_URL}/password/resetpassword/${uuid}">Reset</a><p>`
     })
 }

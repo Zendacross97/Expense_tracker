@@ -16,8 +16,10 @@ function add(event){
     const category = event.target.category.value;
     const note = event.target.note.value;
     let expenseDetails = { amount, description, category, note };
-    axios.post('http://localhost:3000/expense/addExpense', expenseDetails, { headers: { 'Authorization': token } })
+    axios.post('/expense/addExpense', expenseDetails, { headers: { 'Authorization': token } })
     .then((res) => {
+        const p = document.querySelector('.expense_message');
+        p.innerHTML = '';
         getExpense(lastPage+1, limit); // Refresh the expense list
     })
     .catch((err) => {
@@ -38,7 +40,7 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 function checkMembership(){
-    axios.get('http://localhost:3000/expense/payment_status', { headers: { 'Authorization': token } })
+    axios.get('/expense/payment_status', { headers: { 'Authorization': token } })   
     .then((res) => {
         const header = document.querySelector('.header');
         const h = header.querySelector('#premium');
@@ -46,7 +48,7 @@ function checkMembership(){
             h.innerHTML = 'You are a premium user <button id="premiumBtn">Show leaderboard</button> <button id="reportBtn">Show Report</button>';
             const premiumBtn = header.querySelector('#premiumBtn');
             premiumBtn.onclick = () => {
-                axios.get('http://localhost:3000/expense/leaderboard', { headers: { 'Authorization': token } })
+                axios.get('/expense/leaderboard', { headers: { 'Authorization': token } })
                 .then((res) => {
                     showLeaderboard(res.data);
                 })
@@ -63,7 +65,7 @@ function checkMembership(){
             }
             const reportBtn = header.querySelector('#reportBtn');
             reportBtn.onclick = () => {
-                window.location.href = `../views/expenseReport.html`;
+                window.location.href = `/expense/report`;
             }
         }
     })
@@ -72,7 +74,7 @@ function checkMembership(){
 function getExpense(page, limit) {
     const ul = document.querySelector(`ul`);
     ul.innerHTML = ''; // Clear previous expenses
-    axios.get(`http://localhost:3000/expense/getExpense?page=${page}&limit=${+limit}`, { headers: { 'Authorization': token } })
+    axios.get(`/expense/getExpense?page=${page}&limit=${+limit}`, { headers: { 'Authorization': token } })
     .then((res) => {
         for (let i = 0; i < res.data.expense.length; i++) {
             showExpense(res.data.expense[i]);
@@ -157,7 +159,7 @@ function showPageination({ totalPages, currentPage, nextPage, previousPage }) {
 }
 
 function deleteExpense(expenseId){
-    axios.delete(`http://localhost:3000/expense/deleteExpense/${expenseId}`, { headers: { 'Authorization': token } })
+    axios.delete(`/expense/deleteExpense/${expenseId}`, { headers: { 'Authorization': token } })
     .then(res => {
         const p = document.querySelector('.expense_message');
         const ul = document.querySelector(`ul`);
@@ -199,7 +201,7 @@ function showLeaderboard(data){
 const header = document.querySelector('.expense_header');
 const downloadBtn = header.querySelector('#downloadBtn');
 downloadBtn.onclick = () => {
-    axios.get('http://localhost:3000/expense/downloadExpenses', { headers: { 'Authorization': token } })
+    axios.get('/expense/downloadExpenses', { headers: { 'Authorization': token } })
     .then((res) => {
         var a = document.createElement("a");
         a.href = res.data.fileURL;
