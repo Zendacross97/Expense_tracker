@@ -1,5 +1,11 @@
 const token = localStorage.getItem('token');
 
+const homeLink = document.getElementById('homeLink');
+homeLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = '/expense';
+});
+
 window.addEventListener("DOMContentLoaded", () => {
     const yearSelector = document.getElementById('yearSelector');
     const currentYear = new Date().getFullYear();
