@@ -1,5 +1,5 @@
 const token = localStorage.getItem('token');
-let page = 1, lastPage = 1, limit = localStorage.getItem(`expensePerPage`) || 5;
+let page = 1, lastPage = 1, nextPage = 1, limit = localStorage.getItem(`expensePerPage`) || 5;
 
 const expensePerPage = document.querySelector('#expense_per_page');
 expensePerPage.addEventListener('change', (event) => {
@@ -20,7 +20,14 @@ function add(event){
     .then((res) => {
         const p = document.querySelector('.expense_message');
         p.innerHTML = '';
-        getExpense(lastPage+1, limit); // Refresh the expense list
+        // getExpense(lastPage+1, limit); // Refresh the expense list
+        const ul = document.querySelector(`ul`);
+        if(ul.childElementCount && ul.childElementCount < limit) {
+            showExpense(res.data.expense);
+        }
+        else {
+            getExpense(lastPage+1, limit);
+        }
     })
     .catch((err) => {
         const p = document.querySelector('.expense_message');
@@ -34,6 +41,9 @@ function add(event){
 }
 
 window.addEventListener("DOMContentLoaded", () => {
+    if(!token) {
+        window.location.href = '/user/login'; // Redirect to login if token is not present
+    }
     expensePerPage.value = limit; // Set the initial value of the dropdown
     checkMembership();
     getExpense(page, limit);
@@ -130,6 +140,9 @@ function showPageination({ totalPages, currentPage, nextPage, previousPage }) {
     currentBtn.id = 'currentBtn';
     page= currentPage; // Update global page variable
     lastPage = totalPages; // Update lastPage variable
+    if (nextPage) {
+        nextPage = nextPage; // Update nextPage variable
+    }
     currentBtn.innerHTML = `${page}`;
     currentBtn.onclick = () => {
         pagination.innerHTML = ''; // Clear previous pagination
@@ -165,9 +178,13 @@ function deleteExpense(expenseId){
         const ul = document.querySelector(`ul`);
         const li = ul.querySelector(`#li_${expenseId}`);
         p.innerHTML = res.data.message;
+        p.style.color = 'green';
         const Delete = li.querySelector(`#delete_${expenseId}`);
         ul.removeChild(Delete.parentElement);
-        getExpense(page, limit);
+        // getExpense(page, limit);
+        if (ul.childElementCount=== 0 || nextPage) {
+            getExpense(page, limit); // If no expenses left, reset to previous page
+        }
     })
     .catch(err => {
         const p = document.querySelector('.expense_message');

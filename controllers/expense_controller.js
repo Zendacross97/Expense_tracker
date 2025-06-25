@@ -28,7 +28,7 @@ exports.addExpense = async (req, res) => {
             await transaction.rollback();
             return res.status(400).json({ error: 'Expense fields are incomplete' });
         }
-        await ExpenseServices.createExpenseWithTransaction(req.body, req.user.id, transaction);
+        const expense = await ExpenseServices.createExpenseWithTransaction(req.body, req.user.id, transaction);
         const oldTotalExpense = await UserServices.getUserByIdWithTransaction(req.user.id, transaction);
         // Check if old total expense is found
         if (!oldTotalExpense || oldTotalExpense.length === 0) {
@@ -38,7 +38,7 @@ exports.addExpense = async (req, res) => {
         const newTotalExpense = +oldTotalExpense[0].totalExpense + +amount;
         await UserServices.updateUserTotalExpenseByIdWithTransaction(newTotalExpense, req.user.id, transaction);
         await transaction.commit();
-        res.status(201).json( { message: 'Expense details added successfully' });
+        res.status(201).json( { message: 'Expense details added successfully', expense } );
     } catch (err) {
         await transaction.rollback();
         res.status(500).json({ error: err.message });
