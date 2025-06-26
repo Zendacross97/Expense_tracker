@@ -33,9 +33,7 @@ exports.paymentStatus = async (req, res) => {
 
         // Updating the order status in your DB
         await Order.update({ status: orderStatus }, { where: { id: Id } });
-
-        // res.status(200).send(orderStatus);
-        res.sendFile(path.join(__dirname, '../views/login.html'));
+        res.redirect('/expense');
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
