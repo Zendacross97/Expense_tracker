@@ -1,6 +1,5 @@
 const express = require('express');
 const expenseController = require('../controllers/expense_controller');
-const expenseReportController = require('../controllers/expenseReportController');
 const userAuthentication = require('../middlewares/auth');
 
 const router = express.Router();
@@ -12,8 +11,8 @@ router.get('/getExpense', userAuthentication.authenticate, expenseController.get
 router.delete('/deleteExpense/:expenseId', userAuthentication.authenticate, expenseController.deleteExpense);
 router.get('/leaderboard', userAuthentication.authenticate, expenseController.getLeaderboard);
 router.get('/downloadExpenses', userAuthentication.authenticate, expenseController.downloadExpenses);
-router.get('/report', expenseReportController.getExpenseReportPage);
-router.get('/monthlyReport/:year', userAuthentication.authenticate, expenseReportController.getMonthlyExpense);
-router.get('/dailyReport/:year/:month', userAuthentication.authenticate, expenseReportController.getDailyExpense);
+router.get('/report', expenseController.getExpenseReportPage);
+router.get('/monthlyReport/:year', userAuthentication.authenticate, expenseController.getMonthlyExpense);
+router.get('/dailyReport/:year/:month', userAuthentication.authenticate, expenseController.getDailyExpense);
 
 module.exports = router;

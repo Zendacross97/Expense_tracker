@@ -14,7 +14,7 @@ exports.uploadToS3 = async (data, filename) => {
         Bucket: BUCKET_NAME,
         Key: filename,
         Body: data,
-        ACL: 'public-read'
+        ACL: 'public-read'// makes the file publicly readable
     };
 
     try {

@@ -3,34 +3,36 @@ const { Cashfree, CFEnvironment } = require('cashfree-pg');
 const cashfree = new Cashfree(CFEnvironment.SANDBOX, process.env.CASHFREE_APP_ID, process.env.CASHFREE_SECRET_KEY);
 
 exports.createOrder = async (
-    orderId,
+    userId,
     orderAmount = 1.00,
     orderCurrency = 'INR',
-    customerId = `user_${orderId}`,
+    customerId = `user_${userId}`,
     customerPhone = "8474090589"
 ) => {
     try {
         const expiryDate = new Date(Date.now() + 60 * 60 * 1000);// 1 hour from now
         const formattedExpiryDate = expiryDate.toISOString();
+
         const request = {
             order_amount: orderAmount,
             order_currency: orderCurrency,
-            order_id: `${orderId}_${Date.now()}`,// Unique order ID
+            order_id: `${userId}_${Date.now()}`,// Unique order ID
             customer_details: {
                 customer_id: customerId,
                 customer_phone: customerPhone
             },
             order_meta: {
-                return_url: `${process.env.BASE_URL}/payment/payment-status/${orderId}`,
+                return_url: `${process.env.BASE_URL}/payment/payment-status/${userId}`,
                 payment_methods: "cc,dc,upi,nb"
             },
             order_expiry_time: formattedExpiryDate
-        }
+        };
+
         const response = await cashfree.PGCreateOrder(request);
         return response.data;
     } catch (error) {
-        console.log(error)
-        console.error('Error creating order:', error.response.data.message);
+        console.error('Error creating order:', error.response?.data?.message || error.message);
+        throw error;
     }
 };
 

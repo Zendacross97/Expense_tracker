@@ -1,156 +1,86 @@
-const Order = require('../models/orderModel');
 const Expense = require('../models/expense_model');
-const DownloadedFiles = require('../models/downloadedFiles');
-const sequelize = require('sequelize');
-const Op = sequelize.Op;
 
-exports.getOrderById = async (orderId) => {
-    try {
-        return await Order.findAll({ 
-            where: { 
-                UserId: orderId,
-                status: 'SUCCESS'
-            }
-        });
-    } catch (error) {
-        throw new Error(`Error creating order: ${error.message}`);
-    }
-}
+exports.createExpense = async (data, session) => {
+  const [expense] = await Expense.create([data], { session });
+  return expense;
+};
 
-exports.createExpenseWithTransaction = async (data, userId, transaction) => {
-    try {
-        return await Expense.create({
-            ...data,
-            UserId: userId
-        }, { transaction });
-    } catch (error) {
-        throw new Error(`Error creating expense: ${error.message}`);
-    }
-}
+exports.getExpenseById = async (expenseId, session) => {
+  return await Expense.findById(expenseId).session(session);
+};
 
-exports.getExpenseByUserId = async (userId) => {
-    try {
-        return await Expense.findAll({
-            where: { UserId: userId }
-        });
-    } catch (error) {
-        throw new Error(`Error fetching expense by ID: ${error.message}`);
+exports.getExpenseByUserId = async (userId, { page, limit } = {}) => {
+  try {
+    let expensesQuery = Expense.find({ userId: userId }).sort({ createdAt: -1 }); // filter directly
+    // apply pagination only if page & limit are provided
+    if (page && limit) {
+      expensesQuery = expensesQuery
+        .skip((page - 1) * limit)
+        .limit(limit);
     }
-}
 
-exports.getExpenseByIdForPagination = async (userId, page, limit) => {
-    try {
-        return await Expense.findAll({
-            where: { UserId: userId },
-            offset: (page - 1) * limit,
-            limit: limit
-        });
-    } catch (error) {
-        throw new Error(`Error fetching expenses: ${error.message}`);
-    }
-}
-
-exports.getExpenseByIdAndUserIdWithTransaction = async (expenseId, userId, transaction) => {
-    try {
-        return await Expense.findAll({
-            where: { 
-                id: expenseId,
-                UserId: userId
-            },
-            transaction
-        });
-    } catch (error) {
-        throw new Error(`Error fetching expense by ID and User ID: ${error.message}`);
-    }
-}
-
-exports.getMonthlyExpenseByYearAndById = async (userId, year) => {
-    try {
-        return await Expense.findAll({
-            attributes: [
-                [sequelize.fn('MONTH', sequelize.col('createdAt')), 'month'],
-                [sequelize.fn('SUM', sequelize.col('amount')), 'totalAmount']
-            ],
-            where: {
-                UserId: userId,
-                [Op.and]: [
-                    sequelize.where(sequelize.fn('YEAR', sequelize.col('createdAt')), '=', year)
-                ]
-            },
-            group: ['month']
-        });
-    } catch (error) {
-        throw new Error(`Error fetching monthly expense: ${error.message}`);
-    }
-}
-
-exports.getDailyExpenseByYearByMonthAndById = async (userId, year, month) => {
-    try {
-        return await Expense.findAll({
-            attributes: [
-                [sequelize.fn('DATE', sequelize.col('createdAt')), 'date'],
-                'description',
-                'category',
-                [sequelize.fn('SUM', sequelize.col('amount')), 'totalAmount']
-            ],
-            where: {
-                UserId: userId,
-                [Op.and]: [
-                    sequelize.where(sequelize.fn('YEAR', sequelize.col('createdAt')), '=', year),
-                    sequelize.where(sequelize.fn('MONTH', sequelize.col('createdAt')), '=', month)
-                ]
-            },
-            group: ['date', 'description', 'category']
-        });
-    } catch (error) {
-        throw new Error(`Error fetching daily expense: ${error.message}`);
-    }
-}
+    return await expensesQuery.lean(); // lean for performance
+  } catch (error) {
+    throw new Error(`Error fetching expenses: ${error.message}}`);
+  }
+};
 
 exports.countExpensesByUserId = async (userId) => {
-    try {
-        return await Expense.count({
-            where: { UserId: userId }
-        });
-    } catch (error) {
-        throw new Error(`Error counting expenses: ${error.message}`);
-    }
-}
+  try {
+    return await Expense.countDocuments({ userId });
+  } catch (error) {
+    throw new Error(`Error counting expenses: ${error.message}`);
+  }
+};
 
-exports.deleteExpenseByIdAndUserIdWithTransaction = async (expenseId, userId, transaction) => {
-    try {
-        return await Expense.destroy({
-            where: { 
-                id: expenseId,
-                UserId: userId 
-            },
-            transaction
-        });
-    } catch (error) {
-        throw new Error(`Error deleting expense: ${error.message}`);
-    }
-}
+exports.getMonthlyExpensesByYearForUser = async (userId, year) => {
+  try {
+    return await Expense.aggregate([
+      { $match: { userId, createdAt: { 
+        $gte: new Date(`${year}-01-01`), 
+        $lte: new Date(`${year}-12-31`) 
+      }}},
+      { $group: {
+        _id: { month: { $month: "$createdAt" } },
+        totalAmount: { $sum: "$amount" }
+      }},
+      { $project: {
+        month: "$_id.month",
+        totalAmount: 1,
+        _id: 0
+      }},
+      { $sort: { month: 1 } }
+    ]);
+  } catch (error) {
+    throw new Error(`Error fetching monthly expenses: ${error.message}`);
+  }
+};
 
-exports.createDownloadedFileWithTransaction = async (ulr, userId, transaction) => {
-    try {
-        return await DownloadedFiles.create({
-            fileUrl: ulr,
-            UserId: userId
-        }, { transaction });
-    } catch (error) {
-        throw new Error(`Error creating downloaded file: ${error.message}`);
-    }
-}
+exports.getDailyExpensesByMonthForUser = async (userId, year, month) => {
+  try {
+    return await Expense.aggregate([
+      { $match: { userId, createdAt: { 
+        $gte: new Date(`${year}-${month}-01`), 
+        $lte: new Date(`${year}-${month}-31`) 
+      }}},
+      { $group: {
+        _id: { day: { $dayOfMonth: "$createdAt" }, description: "$description", category: "$category" },
+        totalAmount: { $sum: "$amount" }
+      }},
+      { $project: {
+        date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+        description: "$_id.description",
+        category: "$_id.category",
+        totalAmount: 1,
+        _id: 0
+      }},
+      { $sort: { date: 1 } }
+    ]);
+  } catch (error) {
+    throw new Error(`Error fetching daily expenses: ${error.message}`);
+  }
+};
 
-exports.getDownloadedFilesByUserIdwithTransaction = async (userId, transaction) => {
-    try {
-        return await DownloadedFiles.findAll({
-            where: { UserId: userId },
-            order: [['Date', 'DESC']], // Order by Date descending
-            limit: 5, // Only get the last 5
-            transaction
-        });
-    } catch (error) {
-        throw new Error(`Error fetching downloaded files by User ID: ${error.message}`);
-    }
-}
+exports.deleteExpenseById = async (expenseId, session) => {
+  return await Expense.findByIdAndDelete(expenseId).session(session);
+};
